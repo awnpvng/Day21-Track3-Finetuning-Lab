@@ -75,10 +75,12 @@ Ghi chú quan trọng đã xác nhận từ repo:
 
 ## Giai đoạn 5 — Verify & nộp bài
 
-- [ ] `[run][manual]` Chạy `python scripts/verify.py` (trên Kaggle hoặc local sau khi copy `results/` + `adapters/correct/` về) — phải exit code 0, không còn placeholder `<điền>`/`<paste>`/`<0.xx>` trong REPORT.md, report ≥400 từ.
-- [ ] `[code][AI]` Nếu `verify.py` báo FAIL ở mục nào, Claude hỗ trợ xác định nguyên nhân (đọc file kết quả liên quan) để bạn sửa đúng chỗ.
-- [ ] `[run][manual]` Đóng gói theo 1 trong 3 format (`submission/REPORT.md` + `results/` + `adapters/correct/` + `notebooks/` đã clear output) — khuyến nghị Option A (ZIP gọn).
-- [ ] `[run][manual]` Nộp bài.
+- [X] `[run][manual]` Tải `results/*.json`, `results/runs.csv`, `adapters/correct/*` từ Kaggle Output về máy (Kaggle gắn nhầm đuôi `.txt` khi tải từng file lẻ — chỉ là tên hiển thị, nội dung không hỏng).
+- [X] `[code][AI]` Đổi lại đúng đuôi file gốc (`.json`/`.csv`/`.safetensors`/...) và xác minh từng file JSON parse được + `adapter_model.safetensors` đúng kích thước lý thuyết (126,882KB ≈ 32.46M tham số × 4 byte fp32).
+- [X] `[run][AI]` Chạy `PYTHONPATH=src python scripts/verify.py` local → phát hiện 1 FAIL thật: checksum `data/*.jsonl` lệch do Git Windows tự đổi LF→CRLF (`core.autocrlf=true`), không phải do sửa dữ liệu. Đã chuẩn hoá lại về LF, checksum khớp 100% với `data/checksums.json`.
+- [X] `[run][AI]` Verify lại: **`26 passed · 1 warnings · 0 failures` → Ready to submit.**
+- [X] `[run][AI]` Đóng gói Option A: `lab21_2A202602574.zip` (~124MB) gồm `submission/REPORT.md` + `REFLECTION.md`, `results/` (9 file), `adapters/correct/` (adapter + tokenizer files), `notebooks/*.py` (6 file, không có output nên không cần clear).
+- [ ] `[run][manual]` Nộp file `lab21_2A202602574.zip` lên hệ thống nộp bài.
 
 ---
 
