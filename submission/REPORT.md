@@ -1,6 +1,6 @@
 # Lab 21 — Evaluation Report
 
-**Họ tên**: <điền>  **MSSV**: <điền>  **Ngày**: 2026-10-07
+**Họ tên**: Trương Hoàng Thành An  **MSSV**: 2A202602574  **Ngày**: 2026-10-07
 **Tier**: `T4`  **Base model**: `unsloth/Qwen3.5-4B`  **GPU thực tế**: `Kaggle Tesla T4 (1 trong 2 GPU, CUDA_VISIBLE_DEVICES=0)`
 
 > Mọi con số dưới đây phải khớp với file trong `results/`. Grader kiểm tra chéo.
@@ -13,13 +13,13 @@
 
 ## 1. Setup
 
-| | |
-|---|---|
-| Dataset | 250 ticket CSKH tiếng Việt → JSON triage (mặc định, không đổi) |
-| Train / val | 225 / 25 (seed 42) |
-| `max_length` | 1024 — p95 đo được là 98 *(results/token_stats.json)* |
-| `MASK_MODE` | `assistant-only` |
-| Epochs / max_steps | 2 / 30 bước (tất cả 4 run NB3+NB4 dùng chung 30 bước) |
+|                    |                                                                         |
+| ------------------ | ----------------------------------------------------------------------- |
+| Dataset            | 250 ticket CSKH tiếng Việt → JSON triage (mặc định, không đổi) |
+| Train / val        | 225 / 25 (seed 42)                                                      |
+| `max_length`     | 1024 — p95 đo được là 98*(results/token_stats.json)*            |
+| `MASK_MODE`      | `assistant-only`                                                      |
+| Epochs / max_steps | 2 / 30 bước (tất cả 4 run NB3+NB4 dùng chung 30 bước)            |
 
 **`max_length` lệch với p95 đo được — giải thích:** p95 chỉ 98 token nhưng tier T4 mặc
 định `max_length=1024`. Giữ nguyên 1024 thay vì hạ theo p95 vì: (1) `max=101` rất sát p95
@@ -41,11 +41,11 @@ khả năng đó (xem thêm B3 ở Phụ lục nếu muốn kiểm chứng với
 
 ## 2. Mask proof (NB1)
 
-| | |
-|---|---|
-| `supervised_fraction` | `0.4149` |
-| Câu trả lời nằm trong loss | `true` |
-| Câu hỏi KHÔNG nằm trong loss | `true` |
+|                                  |            |
+| -------------------------------- | ---------- |
+| `supervised_fraction`          | `0.4149` |
+| Câu trả lời nằm trong loss   | `true`   |
+| Câu hỏi KHÔNG nằm trong loss | `true`   |
 
 Dán 3–5 dòng đầu của đoạn được tính loss:
 
@@ -59,11 +59,11 @@ Dán 3–5 dòng đầu của đoạn được tính loss:
 
 ## 3. Ba baseline (NB2 — đo TRƯỚC khi train)
 
-| Run | target | regression | format | latency (ms) |
-|---|---|---|---|---|
-| (a) base + naive prompt | 0.000 | 0.758 | 0.000 | 2950 |
-| (b) base + optimized prompt | 0.765 | 0.758 | 1.000 | 972 |
-| (c) LoRA fine-tune | 0.970 | 0.544 | 1.000 | 1284 |
+| Run                         | target | regression | format | latency (ms) |
+| --------------------------- | ------ | ---------- | ------ | ------------ |
+| (a) base + naive prompt     | 0.000  | 0.758      | 0.000  | 2950         |
+| (b) base + optimized prompt | 0.765  | 0.758      | 1.000  | 972          |
+| (c) LoRA fine-tune          | 0.970  | 0.544      | 1.000  | 1284         |
 
 > Lưu ý minh bạch: NB2 vô tình bị chạy 2 lần liên tiếp trong cùng notebook (cell trùng
 > lặp khi gộp pipeline vào 1 lần "Save & Run All"). Hai lần chạy cho `target`/`format`
@@ -86,12 +86,12 @@ tụt từ 0.758 xuống 0.544 — chi tiết ở §5.
 
 ## 4. Giải phẫu cấu hình sai (NB4)
 
-| Run | vị trí | r | trainable | LR | train loss (NB4) | **target (NB5 §4)** | s | VRAM GB |
-|---|---|---|---|---|---|---|---|---|
-| `correct` | text-linear | 16 | 32,464,896 | 1e-4 | 0.6264 | **0.970** | 827.6 | 8.78 |
-| `attn_only` | q,v | 283 *(matched)* | 32,456,704 | 1e-4 | 0.5370 | **0.970** | 723.8 | 8.79 |
-| `wrong_lr` | text-linear | 16 | 32,464,896 | 1e-5 | 1.5705 | **0.000** | 848.9 | 8.78 |
-| `qlora` | text-linear | 16 | 32,464,896 (4-bit) | 1e-4 | 0.7058 | **0.940** | 911.5 | 3.86 |
+| Run           | vị trí    | r                | trainable          | LR   | train loss (NB4) | **target (NB5 §4)** | s     | VRAM GB |
+| ------------- | ----------- | ---------------- | ------------------ | ---- | ---------------- | -------------------------- | ----- | ------- |
+| `correct`   | text-linear | 16               | 32,464,896         | 1e-4 | 0.6264           | **0.970**            | 827.6 | 8.78    |
+| `attn_only` | q,v         | 283*(matched)* | 32,456,704         | 1e-4 | 0.5370           | **0.970**            | 723.8 | 8.79    |
+| `wrong_lr`  | text-linear | 16               | 32,464,896         | 1e-5 | 1.5705           | **0.000**            | 848.9 | 8.78    |
+| `qlora`     | text-linear | 16               | 32,464,896 (4-bit) | 1e-4 | 0.7058           | **0.940**            | 911.5 | 3.86    |
 
 > Xếp hạng bằng cột **target**, không bằng cột train loss — chấm bằng chỉ số thay thế
 > chính là Lỗi #3. Nếu hai cột cho hai thứ tự khác nhau, nói thẳng điều đó ở 4.1: đó là
@@ -163,14 +163,14 @@ việc nới lỏng ngưỡng cho PASS giả tạo.
 > đoán (b) cho từng ticket cụ thể — cột "(b) prompt" dưới đây để trống vì không có số
 > liệu per-example, không phải vì bỏ qua. Nhãn đúng lấy trực tiếp từ `data/eval_target.jsonl`.
 
-| # | Ticket (rút gọn) | Nhãn đúng | (b) prompt | (c) fine-tune | Nhận xét |
-|---|---|---|---|---|---|
-| 1 | "...ốp lưng điện thoại...Shipper không gọi..." | `van_chuyen/thap/ốp lưng điện thoại/tich_cuc` | *(không log)* | khớp 4/4 (score 1.0) | ✅ FT thắng |
-| 2 | "...ốp lưng điện thoại...Giá bao nhiêu..." | `hoi_thong_tin/trung_binh/ốp lưng điện thoại/trung_tinh` | *(không log)* | khớp 4/4 (score 1.0) | ✅ FT thắng |
-| 3 | "...ốp lưng điện thoại...Sai màu..." | `san_pham_loi/trung_binh/ốp lưng điện thoại/trung_tinh` | *(không log)* | khớp 4/4 (score 1.0) | ✅ FT thắng |
-| 4 | "...bình giữ nhiệt...Chưa thấy tiền. Khi nào tiện..." | `hoan_tien/thap/bình giữ nhiệt/tich_cuc` | *(không log)* | `urgency=trung_binh` (sai, đúng là `thap`); 3 field còn lại đúng (score 0.75) | ❌ **FT thua** |
-| 5 | "...nồi chiên không dầu...Thiếu phụ kiện..." | `san_pham_loi/thap/nồi chiên không dầu/trung_tinh` | *(không log)* | `urgency=trung_binh` (sai, đúng là `thap`); 3 field còn lại đúng (score 0.75) | ❌ **FT thua** |
-| 6 | "...áo khoác gió...Bị lỗi. Khi nào tiện..." | `san_pham_loi/thap/áo khoác gió/tich_cuc` | *(không log)* | `urgency=trung_binh` (sai, đúng là `thap`); 3 field còn lại đúng (score 0.75) | ❌ **FT thua** |
+| # | Ticket (rút gọn)                                            | Nhãn đúng                                                    | (b) prompt       | (c) fine-tune                                                                            | Nhận xét          |
+| - | ------------------------------------------------------------- | --------------------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------- | ------------------- |
+| 1 | "...ốp lưng điện thoại...Shipper không gọi..."         | `van_chuyen/thap/ốp lưng điện thoại/tich_cuc`            | *(không log)* | khớp 4/4 (score 1.0)                                                                    | ✅ FT thắng        |
+| 2 | "...ốp lưng điện thoại...Giá bao nhiêu..."             | `hoi_thong_tin/trung_binh/ốp lưng điện thoại/trung_tinh` | *(không log)* | khớp 4/4 (score 1.0)                                                                    | ✅ FT thắng        |
+| 3 | "...ốp lưng điện thoại...Sai màu..."                    | `san_pham_loi/trung_binh/ốp lưng điện thoại/trung_tinh`  | *(không log)* | khớp 4/4 (score 1.0)                                                                    | ✅ FT thắng        |
+| 4 | "...bình giữ nhiệt...Chưa thấy tiền. Khi nào tiện..." | `hoan_tien/thap/bình giữ nhiệt/tich_cuc`                   | *(không log)* | `urgency=trung_binh` (sai, đúng là `thap`); 3 field còn lại đúng (score 0.75) | ❌**FT thua** |
+| 5 | "...nồi chiên không dầu...Thiếu phụ kiện..."           | `san_pham_loi/thap/nồi chiên không dầu/trung_tinh`        | *(không log)* | `urgency=trung_binh` (sai, đúng là `thap`); 3 field còn lại đúng (score 0.75) | ❌**FT thua** |
+| 6 | "...áo khoác gió...Bị lỗi. Khi nào tiện..."            | `san_pham_loi/thap/áo khoác gió/tich_cuc`                  | *(không log)* | `urgency=trung_binh` (sai, đúng là `thap`); 3 field còn lại đúng (score 0.75) | ❌**FT thua** |
 
 **Có mẫu chung nào ở các ca FT thua không?** Có — cả 3 ca thua đều sai **cùng một field**
 (`urgency`), và sai theo **cùng một hướng**: model dự đoán `trung_binh` trong khi nhãn
@@ -206,6 +206,7 @@ tiên sửa dữ liệu (trộn thêm 1-5% dữ liệu tổng quát) trước kh
 LoRA nào khác.
 
 **Ba điều tôi học được** (cụ thể, không generic):
+
 1. Train loss thấp không đồng nghĩa với tốt hơn trên chỉ số thật: `attn_only` có
    `final_loss=0.537` thấp hơn `correct` (`0.6264`) nhưng hai run cho `target` HOÀ nhau
    (0.970 cả hai) — nếu chỉ nhìn loss để quyết định cấu hình nào "thắng" sẽ chọn nhầm.
@@ -225,9 +226,9 @@ sánh `regression Δ` trước/sau để xác nhận giả thuyết catastrophic
 
 ## Phụ lục — thưởng đã làm
 
-- [x] B1 NB6 merge + hot-swap — trước merge `0.9700`, sau merge `0.9700` (Δ=0.0000, không
-      tụt điểm), hot-swap thành công 3 adapter (`correct`, `attn_only`, `qlora`) trên cùng
-      1 base, cả 3 cho cùng kết quả dự đoán trên ticket thử.
+- [X] B1 NB6 merge + hot-swap — trước merge `0.9700`, sau merge `0.9700` (Δ=0.0000, không
+  tụt điểm), hot-swap thành công 3 adapter (`correct`, `attn_only`, `qlora`) trên cùng
+  1 base, cả 3 cho cùng kết quả dự đoán trên ticket thử.
 - [ ] B2 dataset miền riêng (`data/CUSTOM_DATASET.md`)
 - [ ] B3 reasoning-trace collapse (hai `MASK_MODE`, kèm `valid_trace_rate`)
 - [ ] B4 quét rank có kiểm soát
